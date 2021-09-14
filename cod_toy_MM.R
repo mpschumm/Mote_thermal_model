@@ -13,13 +13,8 @@ temps <- c(rep(10,200), rep(10,120))
 temps <- c(rep(10,200), seq(10,13, by=(3/(120-1))))
 temps <- c(rep(10,200), seq(10,16, by=(6/(120-1))))
 # What type of recruitment to use?
-recruitment_toggle <- BH
-recruitment_toggle <- Ricker
-
-# Run the model
-mapply( function(x) {
-  timepoints[[x]] <<- model_run(timepoints[[x-1]], x)
-}, 2:runtime)
+recruitment_toggle <- "BH"
+recruitment_toggle <- "Ricker"
 
 # Function that runs the model for a year
 model_run <- function(stages, x) {
@@ -36,7 +31,7 @@ model_run <- function(stages, x) {
   FSSB <- sum(fecundity(popn, lengths))
   popn[longevity] <- popn[longevity] + popn[(longevity-1)]
   popn[2:(longevity-1)] <- popn[1:(longevity-2)] 
-  if (recruitment_toggle==BH) {
+  if (recruitment_toggle=="BH") {
   popn[1] <- 1000*(BH(FSSB/(1000^2)))/2
   } else {
   popn[1] <- 1000*(Ricker(FSSB/(1000^2)))/2 
@@ -103,6 +98,11 @@ b <- 1e-05
 BH <- function(biomass) {
   return(a*biomass/(1+b*biomass))
 }
+
+# Run the model
+mapply( function(x) {
+  timepoints[[x]] <<- model_run(timepoints[[x-1]], x)
+}, 2:runtime)
 
 # Functions for summarizing and plotting model output
 recruit_sum<-function(point) {
